@@ -18,7 +18,7 @@ TimeSync is a fully decoupled Overtime & Timesheet Approval System built with a 
 
 ### 1. Prerequisites
 - Python 3.8+ installed on your machine.
-- macOS/Linux environment.
+- macOS/Linux or Windows environment.
 
 ### 2. Initialization (First Time Only)
 
@@ -41,7 +41,8 @@ python3 seed.py
 
 We have provided a unified script to run the entire backend and frontend concurrently! 
 
-Simply run the included bash script. It will automatically securely activate your virtual environment, install needed dependencies from `requirements.txt`, spin up the Django backend API, and spin up the frontend UI static server:
+**For macOS/Linux:**
+Run the included bash script. It will automatically securely activate your virtual environment, install needed dependencies from `requirements.txt`, spin up the Django backend API, and spin up the frontend UI static server:
 
 ```bash
 # Make it executable (only needed once)
@@ -51,10 +52,19 @@ chmod +x run.sh
 ./run.sh
 ```
 
+**For Windows:**
+Simply run the included batch script from your command prompt or by double-clicking it:
+
+```cmd
+run.bat
+```
+
 - **Frontend Application:** Access via `http://localhost:5500/index.html`
 - **Backend API:** Access via `http://127.0.0.1:8000/api/`
 
-When you are finished testing the app, simply click into your terminal and press `Ctrl+C` to cleanly shut down both servers at exactly the same time.
+When you are finished testing the app:
+- **macOS/Linux**: Click into your terminal and press `Ctrl+C` to cleanly shut down both servers at exactly the same time.
+- **Windows**: Close the two terminal windows that opened for the Frontend and Backend.
 
 ## API Documentation
 
