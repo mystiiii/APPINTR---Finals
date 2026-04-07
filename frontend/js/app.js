@@ -1,6 +1,8 @@
 let allUsers = [];
 let allRequests = [];
 let currentUser = null;
+let currentPage = 1;
+const ITEMS_PER_PAGE = 10;
 
 async function initDashboard() {
     allUsers = await window.api.fetchUsers();
@@ -23,6 +25,7 @@ async function initDashboard() {
 
     roleSelect.addEventListener('change', (e) => {
         currentUser = allUsers.find(u => u.id == e.target.value);
+        currentPage = 1;
         renderView();
     });
 
@@ -68,9 +71,37 @@ function renderView() {
 
     if (filteredRequests.length === 0) {
         emptyState.classList.remove('hidden');
+        document.getElementById('paginationContainer')?.classList.add('hidden');
     } else {
         emptyState.classList.add('hidden');
-        filteredRequests.forEach(req => {
+        document.getElementById('paginationContainer')?.classList.remove('hidden');
+
+        // Pagination Logic
+        const totalItems = filteredRequests.length;
+        const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalItems);
+        const paginatedRequests = filteredRequests.slice(startIndex, endIndex);
+
+        document.getElementById('pageStart').textContent = totalItems === 0 ? 0 : startIndex + 1;
+        document.getElementById('pageEnd').textContent = endIndex;
+        document.getElementById('pageTotal').textContent = totalItems;
+        
+        const prevBtn = document.getElementById('prevPageBtn');
+        const nextBtn = document.getElementById('nextPageBtn');
+        
+        if (prevBtn && nextBtn) {
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === totalPages;
+            
+            prevBtn.className = `relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 text-sm font-medium text-gray-500 ${currentPage === 1 ? 'bg-gray-100 cursor-not-allowed' : 'bg-white hover:bg-gray-50'}`;
+            nextBtn.className = `relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 text-sm font-medium text-gray-500 ${currentPage === totalPages ? 'bg-gray-100 cursor-not-allowed' : 'bg-white hover:bg-gray-50'}`;
+        }
+
+        paginatedRequests.forEach(req => {
             const tr = document.createElement('tr');
             
             const empName = req.employee_details ? `${req.employee_details.first_name} ${req.employee_details.last_name}` : 'Unknown';
@@ -78,28 +109,44 @@ function renderView() {
             // Status Badge Colors (Minimalist)
             let statusColor = 'bg-gray-100 text-gray-800';
             if (req.status === 'APPROVED') statusColor = 'bg-gray-200 text-gray-900 font-semibold';
+            if (req.status === 'REJECTED') statusColor = 'bg-red-100 text-red-800 font-semibold';
             if (req.status === 'PENDING') statusColor = 'bg-white border border-gray-300 text-gray-600';
 
             const statusBadge = `<span class="px-2 inline-flex text-xs leading-5 rounded-full ${statusColor}">${req.status}</span>`;
+
+            const rawReason = req.reason || '';
+            const safeReasonData = rawReason.replace(/"/g, '&quot;');
+            const safeReasonDisplay = rawReason.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
             tr.innerHTML = `
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${empName}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${req.date}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${req.hours} hrs</td>
-                <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">${req.reason}</td>
+                <td class="px-6 py-4 text-sm text-gray-500 max-w-xs">
+                    <div class="flex items-center justify-between space-x-2">
+                        <span class="truncate flex-1">${safeReasonDisplay}</span>
+                        <button onclick="openReasonModal(this)" data-reason="${safeReasonData}" data-name="${empName}" data-date="${req.date}" data-hours="${req.hours}" class="flex-shrink-0 text-xs px-2 py-1 border border-gray-300 rounded bg-white hover:bg-gray-50 text-gray-600 transition-colors duration-150">Read</button>
+                    </div>
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap">${statusBadge}</td>
             `;
 
             if (role === 'MANAGER') {
                 const tdAction = document.createElement('td');
-                tdAction.className = 'px-6 py-4 whitespace-nowrap text-right text-sm font-medium';
+                tdAction.className = 'px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2';
                 
                 const approveBtn = document.createElement('button');
                 approveBtn.textContent = 'Approve';
-                approveBtn.className = 'text-gray-600 hover:text-gray-900 border border-gray-300 rounded px-3 py-1 bg-white hover:bg-gray-50 transition-colors duration-150';
+                approveBtn.className = 'text-green-600 border border-green-300 rounded px-3 py-1 bg-white hover:bg-green-50 transition-colors duration-150';
                 approveBtn.onclick = () => handleApprove(req.id);
                 
+                const disapproveBtn = document.createElement('button');
+                disapproveBtn.textContent = 'Disapprove';
+                disapproveBtn.className = 'text-red-600 border border-red-300 rounded px-3 py-1 bg-white hover:bg-red-50 transition-colors duration-150';
+                disapproveBtn.onclick = () => handleDisapprove(req.id);
+                
                 tdAction.appendChild(approveBtn);
+                tdAction.appendChild(disapproveBtn);
                 tr.appendChild(tdAction);
             }
 
@@ -120,4 +167,33 @@ async function handleApprove(requestId) {
     }
 }
 
+async function handleDisapprove(requestId) {
+    if(!currentUser) return;
+    const res = await window.api.disapproveOvertime(requestId, currentUser.id);
+    if(res && res.id) {
+        // Refresh data
+        allRequests = await window.api.fetchOvertimeRequests();
+        renderView();
+    } else {
+        alert("Failed to disapprove request.");
+    }
+}
+
 document.addEventListener('DOMContentLoaded', initDashboard);
+
+window.openReasonModal = function(btn) {
+    document.getElementById('modalReasonText').textContent = btn.dataset.reason;
+    document.getElementById('modalEmpName').textContent = btn.dataset.name;
+    document.getElementById('modalDate').textContent = btn.dataset.date;
+    document.getElementById('modalHours').textContent = btn.dataset.hours + ' hrs';
+    document.getElementById('reasonModal').classList.remove('hidden');
+};
+
+window.closeReasonModal = function() {
+    document.getElementById('reasonModal').classList.add('hidden');
+};
+
+window.changePage = function(delta) {
+    currentPage += delta;
+    renderView();
+};

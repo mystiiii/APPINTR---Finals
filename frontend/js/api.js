@@ -53,4 +53,20 @@ async function approveOvertime(id, managerId) {
     }
 }
 
-window.api = { fetchUsers, fetchOvertimeRequests, submitOvertime, approveOvertime };
+async function disapproveOvertime(id, managerId) {
+    try {
+        const payload = managerId ? { manager_id: managerId } : {};
+        const response = await fetch(`${API_BASE}/overtime/disapprove/${id}/`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!response.ok) throw new Error('Failed to disapprove overtime');
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+window.api = { fetchUsers, fetchOvertimeRequests, submitOvertime, approveOvertime, disapproveOvertime };

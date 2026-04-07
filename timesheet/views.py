@@ -52,3 +52,26 @@ class OvertimeApproveView(APIView):
 
         serializer = OvertimeRequestSerializer(overtime_request)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class OvertimeDisapproveView(APIView):
+    def patch(self, request, pk):
+        overtime_request = get_object_or_404(OvertimeRequest, pk=pk)
+        
+        # Reject the request
+        overtime_request.status = 'REJECTED'
+        overtime_request.save()
+
+        manager_id = request.data.get('manager_id')
+        manager = None
+        if manager_id:
+            manager = User.objects.filter(id=manager_id).first()
+
+        Log.objects.create(
+            user=manager,
+            action="Rejected Overtime Request",
+            overtime_request=overtime_request,
+            details=f"Rejected request ID {overtime_request.id}"
+        )
+
+        serializer = OvertimeRequestSerializer(overtime_request)
+        return Response(serializer.data, status=status.HTTP_200_OK)

@@ -74,3 +74,4 @@ When you are finished testing the app:
 | `/api/overtime/` | `GET` | None | `[{id, employee_details, hours...}]`| Grabs all timesheets in the system |
 | `/api/overtime/submit/`| `POST`| `{"employee_id": 1, "date": "2024-05-12", "hours": 4.5, "reason": "Deadline"}` | New object dict | Submits an unapproved entry |
 | `/api/overtime/approve/<id>/`| `PATCH`| `{"manager_id": 2}` (Optional for logs) | Approved object | Flips overtime status to 'APPROVED' |
+| `/api/overtime/disapprove/<id>/`| `PATCH`| `{"manager_id": 2}` (Optional for logs) | Rejected object | Flips overtime status to 'REJECTED' |
