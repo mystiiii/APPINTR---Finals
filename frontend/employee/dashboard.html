@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard — TimeSync</title>
+    <meta name="description" content="View your personal overtime requests and submit new ones.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .glass-nav {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .input-field {
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .input-field:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.35);
+        }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .fade-in { animation: fadeInUp 0.4s ease-out both; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="gradient-bg text-white">
+
+    <!-- Navigation -->
+    <nav class="glass-nav sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z"/>
+                        </svg>
+                    </div>
+                    <span class="text-lg font-bold text-white tracking-tight">TimeSync</span>
+                    <span class="hidden sm:inline-flex px-2.5 py-0.5 text-[10px] font-medium rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 uppercase tracking-wider">Employee</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span id="navUserName" class="text-sm text-slate-300 hidden sm:block"></span>
+                    <button onclick="window.auth.logout()" class="text-sm text-slate-400 hover:text-white transition-colors flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                        </svg>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 fade-in">
+
+        <!-- Submit Overtime Card -->
+        <div class="glass-card rounded-2xl p-6 mb-8">
+            <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                </svg>
+                Submit Overtime Request
+            </h2>
+            <form id="submitOvertimeForm" class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+                <div>
+                    <label for="otDate" class="block text-sm font-medium text-slate-400 mb-1.5">Date</label>
+                    <input id="otDate" type="date" required
+                        class="input-field w-full rounded-xl border border-white/10 bg-white/5 text-white px-4 py-2.5 text-sm outline-none">
+                </div>
+                <div>
+                    <label for="otHours" class="block text-sm font-medium text-slate-400 mb-1.5">Hours</label>
+                    <input id="otHours" type="number" step="0.5" min="0.5" max="24" required
+                        class="input-field w-full rounded-xl border border-white/10 bg-white/5 text-white px-4 py-2.5 text-sm outline-none"
+                        placeholder="e.g. 2.5">
+                </div>
+                <div>
+                    <label for="otReason" class="block text-sm font-medium text-slate-400 mb-1.5">Reason</label>
+                    <input id="otReason" type="text" required
+                        class="input-field w-full rounded-xl border border-white/10 bg-white/5 text-white placeholder-slate-500 px-4 py-2.5 text-sm outline-none"
+                        placeholder="Business reason for overtime…">
+                </div>
+                <button id="submitOtBtn" type="submit"
+                    class="btn-primary text-white font-semibold py-2.5 rounded-xl text-sm flex items-center justify-center gap-2">
+                    <span id="submitOtBtnText">Submit Request</span>
+                    <svg id="submitOtSpinner" class="hidden animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                </button>
+            </form>
+        </div>
+
+        <!-- Requests Table -->
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-white/5">
+                <h2 class="text-lg font-semibold text-white">My Overtime Requests</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="border-b border-white/5">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Hours</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Reason</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="overtimeTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div id="paginationContainer" class="hidden px-6 py-3 border-t border-white/5 flex items-center justify-between">
+                <p class="text-sm text-slate-500">
+                    Showing <span class="font-medium text-slate-300" id="pageStart">1</span> to <span class="font-medium text-slate-300" id="pageEnd">10</span> of <span class="font-medium text-slate-300" id="pageTotal">0</span>
+                </p>
+                <div class="inline-flex">
+                    <button id="prevPageBtn" onclick="window.employeeDash.changePage(-1)" class="px-3 py-2 rounded-l-lg border border-slate-700 bg-slate-800 text-sm text-slate-300 hover:bg-slate-700 transition-colors">Previous</button>
+                    <button id="nextPageBtn" onclick="window.employeeDash.changePage(1)" class="px-3 py-2 rounded-r-lg border border-slate-700 bg-slate-800 text-sm text-slate-300 hover:bg-slate-700 transition-colors">Next</button>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden py-16 text-center">
+                <svg class="mx-auto w-12 h-12 text-slate-600 mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                </svg>
+                <p class="text-slate-500 text-sm">No overtime requests yet. Submit one above!</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Reason Modal -->
+    <div id="reasonModal" class="hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" onclick="window.employeeDash.closeModal()"></div>
+            <div class="relative glass-card rounded-2xl max-w-md w-full p-6 shadow-2xl">
+                <h3 class="text-lg font-semibold text-white mb-4">Overtime Details</h3>
+                <div class="space-y-2 text-sm mb-4">
+                    <p><span class="text-slate-400">Date:</span> <span id="modalDate" class="text-white ml-2"></span></p>
+                    <p><span class="text-slate-400">Hours:</span> <span id="modalHours" class="text-white ml-2"></span></p>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-slate-400 mb-1">Reason:</p>
+                    <p id="modalReasonText" class="text-sm text-slate-200 whitespace-pre-wrap break-words bg-white/5 rounded-xl p-4"></p>
+                </div>
+                <div class="mt-6">
+                    <button onclick="window.employeeDash.closeModal()" class="w-full py-2.5 rounded-xl border border-white/10 text-sm font-medium text-slate-300 hover:bg-white/5 transition-colors">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/toast.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/employee.js"></script>
+</body>
+</html>
