@@ -119,9 +119,9 @@
         <p class="text-center text-slate-600 text-xs mt-6">&copy; 2026 TimeSync. All rights reserved.</p>
     </div>
 
-    <script src="js/toast.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/api.js"></script>
+    <script src="js/toast.js?v=2"></script>
+    <script src="js/auth.js?v=2"></script>
+    <script src="js/services.js?v=2"></script>
     <script>
         (function () {
             'use strict';
@@ -156,19 +156,37 @@
                 btnText.textContent = 'Signing in…';
                 spinner.classList.remove('hidden');
 
-                var result = await window.api.login(username, password);
+                try {
+                    if (!window.api || typeof window.api.login !== 'function') {
+                        throw new Error('API module failed to load. Please refresh the page.');
+                    }
 
-                if (result.success) {
-                    showToast('Login successful! Redirecting…', 'success');
-                    setTimeout(function () {
-                        window.location.href = window.auth.getDashboardPath(result.data.user.role);
-                    }, 600);
-                } else {
-                    showToast(result.error, 'error');
-                    btn.disabled = false;
-                    btnText.textContent = 'Sign In';
-                    spinner.classList.add('hidden');
+                    var result = await window.api.login(username, password);
+
+                    if (result.success) {
+                        showToast('Login successful! Redirecting…', 'success');
+                        var role = result.data.user.role;
+                        setTimeout(function () {
+                            window.location.href = window.auth.getDashboardPath(role);
+                        }, 600);
+                        return; // Keep button in loading state during redirect
+                    } else {
+                        showToast(result.error || 'Login failed.', 'error');
+                    }
+                } catch (err) {
+                    console.error('[TimeSync] Login form error:', err);
+                    var msg = (err && err.message) ? err.message : 'An unexpected error occurred.';
+                    if (typeof showToast === 'function') {
+                        showToast(msg, 'error');
+                    } else {
+                        alert('Login error: ' + msg);
+                    }
                 }
+
+                /* Reset button on failure */
+                btn.disabled = false;
+                btnText.textContent = 'Sign In';
+                spinner.classList.add('hidden');
             });
         })();
     </script>

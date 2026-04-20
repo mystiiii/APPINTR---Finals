@@ -11,6 +11,28 @@
   'use strict';
 
   var API_BASE = 'http://127.0.0.1:8000/api';
+  var FETCH_TIMEOUT = 10000; // 10 seconds
+
+  /**
+   * Wrapper around fetch that aborts after a timeout.
+   * Prevents the UI from hanging forever if the backend is unreachable.
+   */
+  function fetchWithTimeout(url, options, timeout) {
+    timeout = timeout || FETCH_TIMEOUT;
+    var controller = new AbortController();
+    options = options || {};
+    options.signal = controller.signal;
+
+    return Promise.race([
+      fetch(url, options),
+      new Promise(function (_, reject) {
+        setTimeout(function () {
+          controller.abort();
+          reject(new Error('Request timed out after ' + timeout + 'ms'));
+        }, timeout);
+      }),
+    ]);
+  }
 
   /* -----------------------------------------------------------------------
    * Internal: authenticated fetch wrapper
@@ -75,25 +97,34 @@
    */
   async function login(username, password) {
     try {
-      var response = await fetch(API_BASE + '/auth/login/', {
+      console.log('[TimeSync] Logging in as', username);
+      var response = await fetchWithTimeout(API_BASE + '/auth/login/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: username, password: password }),
       });
 
       var body = await response.json();
+      console.log('[TimeSync] Login response status:', response.status);
 
       if (!response.ok) {
         var msg = body.detail || 'Invalid username or password.';
+        console.warn('[TimeSync] Login failed:', msg);
         return { success: false, error: msg };
       }
 
       window.auth.setTokens(body.access, body.refresh);
       window.auth.setUser(body.user);
+      console.log('[TimeSync] Login successful, role:', body.user.role);
 
       return { success: true, data: body };
-    } catch (_) {
-      return { success: false, error: 'Network error. Please try again.' };
+    } catch (err) {
+      console.error('[TimeSync] Login error:', err);
+      var errorMsg = 'Network error. Please try again.';
+      if (err && err.message && err.message.indexOf('timed out') !== -1) {
+        errorMsg = 'Server not responding. Make sure the backend is running on port 8000.';
+      }
+      return { success: false, error: errorMsg };
     }
   }
 
@@ -103,13 +134,15 @@
    */
   async function register(payload) {
     try {
-      var response = await fetch(API_BASE + '/auth/register/', {
+      console.log('[TimeSync] Registering user:', payload.username);
+      var response = await fetchWithTimeout(API_BASE + '/auth/register/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
       var body = await response.json();
+      console.log('[TimeSync] Register response status:', response.status);
 
       if (!response.ok) {
         // Collect all validation errors into a single message
@@ -120,15 +153,23 @@
             errors.push(val);
           }
         }
-        return { success: false, error: errors.join(' ') || 'Registration failed.' };
+        var errorMsg = errors.join(' ') || 'Registration failed.';
+        console.warn('[TimeSync] Registration failed:', errorMsg);
+        return { success: false, error: errorMsg };
       }
 
       window.auth.setTokens(body.tokens.access, body.tokens.refresh);
       window.auth.setUser(body.user);
+      console.log('[TimeSync] Registration successful, role:', body.user.role);
 
       return { success: true, data: body };
-    } catch (_) {
-      return { success: false, error: 'Network error. Please try again.' };
+    } catch (err) {
+      console.error('[TimeSync] Registration error:', err);
+      var errorMsg = 'Network error. Please try again.';
+      if (err && err.message && err.message.indexOf('timed out') !== -1) {
+        errorMsg = 'Server not responding. Make sure the backend is running on port 8000.';
+      }
+      return { success: false, error: errorMsg };
     }
   }
 

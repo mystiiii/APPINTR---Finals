@@ -4,6 +4,16 @@
 cd "$(dirname "$0")"
 BASE_DIR=$(pwd)
 
+# 0. Kill any stale processes on our ports
+for PORT in 5500 8000; do
+    PIDS=$(lsof -ti:$PORT 2>/dev/null)
+    if [ -n "$PIDS" ]; then
+        echo "Killing stale process(es) on port $PORT..."
+        echo "$PIDS" | xargs kill -9 2>/dev/null
+        sleep 0.5
+    fi
+done
+
 # 1. Identify the virtual environment and set the Python path explicitly
 if [ -d ".venv" ]; then
     echo "Using virtual environment (.venv)..."
