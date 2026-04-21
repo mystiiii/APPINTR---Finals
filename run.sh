@@ -9,7 +9,7 @@ for PORT in 5500 8000; do
     PIDS=$(lsof -ti:$PORT 2>/dev/null)
     if [ -n "$PIDS" ]; then
         echo "Killing stale process(es) on port $PORT..."
-        echo "$PIDS" | xargs kill -9 2>/dev/null
+        echo "$PIDS" | xargs kill -9 2>/d   ev/null
         sleep 0.5
     fi
 done
