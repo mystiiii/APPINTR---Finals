@@ -1,106 +1,70 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In — TimeSync</title>
     <meta name="description" content="Sign in to TimeSync to manage overtime requests, approvals, and payroll timesheets.">
+    <script src="js/theme.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .gradient-bg {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .input-field {
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-        .input-field:focus {
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-        }
-        .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.35);
-        }
-        .btn-primary:active { transform: translateY(0); }
-        .fade-in {
-            animation: fadeInUp 0.5s ease-out both;
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(16px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        /* Floating orbs */
-        .orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.15;
-            pointer-events: none;
-        }
-    </style>
+    <link rel="stylesheet" href="css/theme.css">
 </head>
-<body class="gradient-bg min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
+<body class="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
 
-    <!-- Decorative orbs -->
-    <div class="orb w-96 h-96 bg-indigo-500 -top-32 -left-32" style="position:absolute;"></div>
-    <div class="orb w-80 h-80 bg-purple-600 bottom-0 right-0" style="position:absolute;"></div>
+    <!-- Theme Toggle (top-right) -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="window.tsTheme.toggle()" class="theme-toggle" aria-label="Toggle theme">
+            <svg class="icon-sun" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m8.66-13.66l-.71.71M4.05 19.95l-.71.71M21 12h-1M4 12H3m16.66 7.66l-.71-.71M4.05 4.05l-.71-.71M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            <svg class="icon-moon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        </button>
+    </div>
 
     <div class="w-full max-w-md fade-in" style="animation-delay: 0.1s;">
 
         <!-- Branding -->
         <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 mb-4">
-                <svg class="w-7 h-7 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-4" style="background: var(--color-accent-bg); border: 1px solid var(--color-accent-border);">
+                <svg class="w-7 h-7" style="color: var(--color-accent-text);" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z"/>
                 </svg>
             </div>
-            <h1 class="text-2xl font-bold text-white tracking-tight">Welcome back</h1>
-            <p class="text-slate-400 text-sm mt-1">Sign in to your TimeSync account</p>
+            <h1 class="text-2xl font-bold tracking-tight ts-text-primary">Welcome back</h1>
+            <p class="ts-text-muted text-sm mt-1">Sign in to your TimeSync account</p>
         </div>
 
         <!-- Login Card -->
-        <div class="glass-card rounded-2xl p-8">
+        <div class="ts-card p-8">
             <form id="loginForm" class="space-y-5">
                 <div>
-                    <label for="username" class="block text-sm font-medium text-slate-300 mb-1.5">Username</label>
+                    <label for="username" class="block text-sm font-medium ts-text-secondary mb-1.5">Username</label>
                     <input
                         id="username"
                         name="username"
                         type="text"
                         required
                         autocomplete="username"
-                        class="input-field w-full rounded-xl border border-white/10 bg-white/5 text-white placeholder-slate-500 px-4 py-3 text-sm outline-none"
+                        class="ts-input w-full rounded-xl px-4 py-3 text-sm"
                         placeholder="Enter your username"
                     >
                 </div>
                 <div>
-                    <label for="password" class="block text-sm font-medium text-slate-300 mb-1.5">Password</label>
+                    <label for="password" class="block text-sm font-medium ts-text-secondary mb-1.5">Password</label>
                     <input
                         id="password"
                         name="password"
                         type="password"
                         required
                         autocomplete="current-password"
-                        class="input-field w-full rounded-xl border border-white/10 bg-white/5 text-white placeholder-slate-500 px-4 py-3 text-sm outline-none"
+                        class="ts-input w-full rounded-xl px-4 py-3 text-sm"
                         placeholder="Enter your password"
                     >
                 </div>
                 <button
                     id="loginBtn"
                     type="submit"
-                    class="btn-primary w-full text-white font-semibold py-3 rounded-xl text-sm flex items-center justify-center gap-2"
+                    class="ts-btn-primary w-full font-semibold py-3 rounded-xl text-sm flex items-center justify-center gap-2"
                 >
                     <span id="loginBtnText">Sign In</span>
                     <svg id="loginSpinner" class="hidden animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
@@ -111,17 +75,17 @@
             </form>
 
             <div class="mt-6 text-center">
-                <span class="text-slate-500 text-sm">Don't have an account?</span>
-                <a href="signup.html" class="text-indigo-400 hover:text-indigo-300 text-sm font-medium ml-1 transition-colors">Create one</a>
+                <span class="ts-text-faint text-sm">Don't have an account?</span>
+                <a href="signup.html" class="text-sm font-medium ml-1 transition-colors" style="color: var(--color-accent-text);">Create one</a>
             </div>
         </div>
 
-        <p class="text-center text-slate-600 text-xs mt-6">&copy; 2026 TimeSync. All rights reserved.</p>
+        <p class="text-center ts-text-footer text-xs mt-6">&copy; 2026 TimeSync. All rights reserved.</p>
     </div>
 
-    <script src="js/toast.js?v=2"></script>
-    <script src="js/auth.js?v=2"></script>
-    <script src="js/services.js?v=2"></script>
+    <script src="js/toast.js?v=3"></script>
+    <script src="js/auth.js?v=3"></script>
+    <script src="js/services.js?v=3"></script>
     <script>
         (function () {
             'use strict';

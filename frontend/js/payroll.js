@@ -110,22 +110,21 @@
     var nextBtn = document.getElementById('nextPageBtn');
     if (prevBtn) {
       prevBtn.disabled = currentPage === 1;
-      prevBtn.className = 'relative inline-flex items-center px-3 py-2 rounded-l-lg border text-sm font-medium transition-colors ' +
-        (currentPage === 1
-          ? 'border-slate-700 bg-slate-800/50 text-slate-600 cursor-not-allowed'
-          : 'border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700');
+      prevBtn.style.opacity = currentPage === 1 ? '0.5' : '1';
+      prevBtn.style.cursor = currentPage === 1 ? 'not-allowed' : 'pointer';
     }
     if (nextBtn) {
       nextBtn.disabled = currentPage === totalPages;
-      nextBtn.className = 'relative inline-flex items-center px-3 py-2 rounded-r-lg border text-sm font-medium transition-colors ' +
-        (currentPage === totalPages
-          ? 'border-slate-700 bg-slate-800/50 text-slate-600 cursor-not-allowed'
-          : 'border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700');
+      nextBtn.style.opacity = currentPage === totalPages ? '0.5' : '1';
+      nextBtn.style.cursor = currentPage === totalPages ? 'not-allowed' : 'pointer';
     }
 
     page.forEach(function (req) {
       var tr = document.createElement('tr');
-      tr.className = 'border-b border-slate-700/50 hover:bg-white/[0.02] transition-colors';
+      tr.style.borderBottom = '1px solid var(--color-row-border)';
+      tr.style.transition = 'background-color 0.15s';
+      tr.onmouseenter = function () { tr.style.backgroundColor = 'var(--color-row-hover)'; };
+      tr.onmouseleave = function () { tr.style.backgroundColor = 'transparent'; };
 
       var empName = req.employee_details
         ? req.employee_details.first_name + ' ' + req.employee_details.last_name
@@ -135,11 +134,11 @@
       var pay = hours * BASE_HOURLY_RATE * OT_MULTIPLIER;
 
       tr.innerHTML =
-        '<td class="px-6 py-4 whitespace-nowrap text-sm text-white font-medium">' + escapeHtml(empName) + '</td>' +
-        '<td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">' + escapeHtml(req.date) + '</td>' +
-        '<td class="px-6 py-4 whitespace-nowrap text-sm text-white">' + req.hours + ' hrs</td>' +
-        '<td class="px-6 py-4 whitespace-nowrap text-sm text-emerald-400 font-medium">₱' + pay.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</td>' +
-        '<td class="px-6 py-4 whitespace-nowrap"><span class="px-2.5 py-1 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">APPROVED</span></td>';
+        '<td class="px-6 py-4 whitespace-nowrap text-sm font-medium" style="color:var(--color-text-primary);">' + escapeHtml(empName) + '</td>' +
+        '<td class="px-6 py-4 whitespace-nowrap text-sm" style="color:var(--color-text-secondary);">' + escapeHtml(req.date) + '</td>' +
+        '<td class="px-6 py-4 whitespace-nowrap text-sm" style="color:var(--color-text-primary);">' + req.hours + ' hrs</td>' +
+        '<td class="px-6 py-4 whitespace-nowrap text-sm font-medium" style="color:var(--color-badge-approved-text);">₱' + pay.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</td>' +
+        '<td class="px-6 py-4 whitespace-nowrap"><span class="px-2.5 py-1 text-xs font-medium rounded-full" style="background:var(--color-badge-approved-bg);color:var(--color-badge-approved-text);border:1px solid var(--color-badge-approved-border);">APPROVED</span></td>';
 
       tableBody.appendChild(tr);
     });
