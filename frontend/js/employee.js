@@ -83,44 +83,43 @@
     var nextBtn = document.getElementById('nextPageBtn');
     if (prevBtn) {
       prevBtn.disabled = currentPage === 1;
-      prevBtn.className = 'relative inline-flex items-center px-3 py-2 rounded-l-lg border text-sm font-medium transition-colors ' +
-        (currentPage === 1
-          ? 'border-slate-700 bg-slate-800/50 text-slate-600 cursor-not-allowed'
-          : 'border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700');
+      prevBtn.style.opacity = currentPage === 1 ? '0.5' : '1';
+      prevBtn.style.cursor = currentPage === 1 ? 'not-allowed' : 'pointer';
     }
     if (nextBtn) {
       nextBtn.disabled = currentPage === totalPages;
-      nextBtn.className = 'relative inline-flex items-center px-3 py-2 rounded-r-lg border text-sm font-medium transition-colors ' +
-        (currentPage === totalPages
-          ? 'border-slate-700 bg-slate-800/50 text-slate-600 cursor-not-allowed'
-          : 'border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700');
+      nextBtn.style.opacity = currentPage === totalPages ? '0.5' : '1';
+      nextBtn.style.cursor = currentPage === totalPages ? 'not-allowed' : 'pointer';
     }
 
     page.forEach(function (req) {
       var tr = document.createElement('tr');
-      tr.className = 'border-b border-slate-700/50 hover:bg-white/[0.02] transition-colors';
+      tr.style.borderBottom = '1px solid var(--color-row-border)';
+      tr.style.transition = 'background-color 0.15s';
+      tr.onmouseenter = function () { tr.style.backgroundColor = 'var(--color-row-hover)'; };
+      tr.onmouseleave = function () { tr.style.backgroundColor = 'transparent'; };
 
-      var statusColors = {
-        PENDING: 'bg-amber-500/10 text-amber-400 border border-amber-500/20',
-        APPROVED: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
-        REJECTED: 'bg-red-500/10 text-red-400 border border-red-500/20',
+      var statusStyles = {
+        PENDING:  'background:var(--color-badge-pending-bg);color:var(--color-badge-pending-text);border:1px solid var(--color-badge-pending-border);',
+        APPROVED: 'background:var(--color-badge-approved-bg);color:var(--color-badge-approved-text);border:1px solid var(--color-badge-approved-border);',
+        REJECTED: 'background:var(--color-badge-rejected-bg);color:var(--color-badge-rejected-text);border:1px solid var(--color-badge-rejected-border);',
       };
-      var statusClass = statusColors[req.status] || 'bg-slate-700 text-slate-300';
+      var badgeStyle = statusStyles[req.status] || 'background:var(--color-btn-secondary-bg);color:var(--color-text-secondary);';
 
       var rawReason = req.reason || '';
       var safeReason = rawReason.replace(/</g, '&lt;').replace(/>/g, '&gt;');
       var safeReasonData = rawReason.replace(/"/g, '&quot;');
 
       tr.innerHTML =
-        '<td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">' + escapeHtml(req.date) + '</td>' +
-        '<td class="px-6 py-4 whitespace-nowrap text-sm text-white font-medium">' + req.hours + ' hrs</td>' +
-        '<td class="px-6 py-4 text-sm text-slate-400 max-w-xs">' +
+        '<td class="px-6 py-4 whitespace-nowrap text-sm" style="color:var(--color-text-secondary);">' + escapeHtml(req.date) + '</td>' +
+        '<td class="px-6 py-4 whitespace-nowrap text-sm font-medium" style="color:var(--color-text-primary);">' + req.hours + ' hrs</td>' +
+        '<td class="px-6 py-4 text-sm max-w-xs" style="color:var(--color-text-muted);">' +
           '<div class="flex items-center gap-2">' +
             '<span class="truncate flex-1">' + safeReason + '</span>' +
-            '<button onclick="window.employeeDash.openModal(this)" data-reason="' + safeReasonData + '" data-date="' + escapeHtml(req.date) + '" data-hours="' + req.hours + '" class="flex-shrink-0 text-xs px-2 py-1 rounded-lg border border-slate-600 bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors">Read</button>' +
+            '<button onclick="window.employeeDash.openModal(this)" data-reason="' + safeReasonData + '" data-date="' + escapeHtml(req.date) + '" data-hours="' + req.hours + '" class="flex-shrink-0 text-xs px-2 py-1 rounded-lg transition-colors" style="border:1px solid var(--color-btn-secondary-border);background:var(--color-btn-secondary-bg);color:var(--color-btn-secondary-text);">Read</button>' +
           '</div>' +
         '</td>' +
-        '<td class="px-6 py-4 whitespace-nowrap"><span class="px-2.5 py-1 text-xs font-medium rounded-full ' + statusClass + '">' + req.status + '</span></td>';
+        '<td class="px-6 py-4 whitespace-nowrap"><span class="px-2.5 py-1 text-xs font-medium rounded-full" style="' + badgeStyle + '">' + req.status + '</span></td>';
 
       tableBody.appendChild(tr);
     });
