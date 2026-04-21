@@ -17,6 +17,10 @@ if exist ".venv\Scripts\activate.bat" (
 echo Ensuring all required Python packages are installed...
 pip install -q -r requirements.txt
 
+:: Run migrations
+echo Running database migrations...
+python manage.py migrate --run-syncdb
+
 echo Starting Django backend server...
 :: Run the backend in a new window
 start "TimeSync Backend" cmd /k "python manage.py runserver"
@@ -28,7 +32,7 @@ start "TimeSync Frontend" cmd /k "cd frontend && python -m http.server 5500"
 echo.
 echo =========================================================
 echo [OK] Both servers have been launched in separate windows!
-echo ---  Frontend available at: http://localhost:5500/index.html
+echo ---  Frontend available at: http://localhost:5500/login.html
 echo ---  Backend available at:  http://127.0.0.1:8000/api/
 echo =========================================================
 echo To stop the servers, close their terminal windows.

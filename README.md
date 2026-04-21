@@ -4,9 +4,9 @@ TimeSync is a fully decoupled Overtime & Timesheet Approval System built with a 
 
 ## Architecture Structure
 
-- **Backend**: Django & Django REST Framework (DRF) serving JSON responses.
+- **Backend**: Django & Django REST Framework (DRF) serving JSON responses with secure JWT Authentication.
 - **Frontend**: HTML, vanilla JavaScript (using native Fetch API), and Tailwind CSS for minimalist corporate styling.
-- **Database**: SQLite (Development) easily configurable to MySQL/MariaDB for production.
+- **Database**: SQLite (Development) configured via environment variables, easily scalable to PostgreSQL for production.
 
 ## User Roles
 
@@ -22,11 +22,14 @@ TimeSync is a fully decoupled Overtime & Timesheet Approval System built with a 
 
 ### 2. Initialization (First Time Only)
 
-Open your terminal in the project directory, create your virtual environment, and set up your initial database structure:
+Open your terminal in the project directory, create your virtual environment, configure your environment variables, and set up your initial database structure:
 
 ```bash
 # Create the virtual environment
 python3 -m venv .venv
+
+# Create a copy of the environment template
+cp .env.example .env
 
 # Run database migrations
 python3 manage.py makemigrations
@@ -68,10 +71,15 @@ When you are finished testing the app:
 
 ## API Documentation
 
+All protected endpoints require a valid JSON Web Token (JWT) sent in the `Authorization` header: `Authorization: Bearer <your_access_token>`.
+
 | Endpoint | Method | Expected Payload | Returns | Description |
 | -------- | ------ | ---------------- | ------- | ----------- |
-| `/api/users/` | `GET` | None | `[{id, username, role...}]` | Returns list of structured users |
-| `/api/overtime/` | `GET` | None | `[{id, employee_details, hours...}]`| Grabs all timesheets in the system |
-| `/api/overtime/submit/`| `POST`| `{"employee_id": 1, "date": "2024-05-12", "hours": 4.5, "reason": "Deadline"}` | New object dict | Submits an unapproved entry |
-| `/api/overtime/approve/<id>/`| `PATCH`| `{"manager_id": 2}` (Optional for logs) | Approved object | Flips overtime status to 'APPROVED' |
-| `/api/overtime/disapprove/<id>/`| `PATCH`| `{"manager_id": 2}` (Optional for logs) | Rejected object | Flips overtime status to 'REJECTED' |
+| `/api/auth/register/` | `POST` | `{"username", "password", "password2", "role"...}` | User obj & JWT tokens | Registers a new user account and returns tokens |
+| `/api/auth/login/` | `POST` | `{"username", "password"}` | User obj & JWT tokens | Authenticates a user and returns access/refresh tokens |
+| `/api/auth/refresh/` | `POST` | `{"refresh": "..."}` | `{"access": "..."}` | Exchanges a valid refresh token for a new access token |
+| `/api/auth/me/` | `GET` | None | User obj dict | Returns the profile of the currently authenticated user |
+| `/api/overtime/` | `GET` | None | `[{id, employee_details, hours...}]`| Grabs timesheets based on role (Employee: Own, Manager: Pending, Payroll: Approved) |
+| `/api/overtime/submit/`| `POST`| `{"date": "2024-05-12", "hours": 4.5, "reason": "Deadline"}` | New object dict | Submits a new unapproved entry (Employee inferred from JWT) |
+| `/api/overtime/approve/<id>/`| `PATCH`| None | Approved object dict | Flips overtime status to 'APPROVED' (Managers only) |
+| `/api/overtime/disapprove/<id>/`| `PATCH`| None | Rejected object dict | Flips overtime status to 'REJECTED' (Managers only) |

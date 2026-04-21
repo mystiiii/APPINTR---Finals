@@ -4,6 +4,16 @@
 cd "$(dirname "$0")"
 BASE_DIR=$(pwd)
 
+# 0. Kill any stale processes on our ports
+for PORT in 5500 8000; do
+    PIDS=$(lsof -ti:$PORT 2>/dev/null)
+    if [ -n "$PIDS" ]; then
+        echo "Killing stale process(es) on port $PORT..."
+        echo "$PIDS" | xargs kill -9 2>/d   ev/null
+        sleep 0.5
+    fi
+done
+
 # 1. Identify the virtual environment and set the Python path explicitly
 if [ -d ".venv" ]; then
     echo "Using virtual environment (.venv)..."
@@ -21,13 +31,16 @@ fi
 echo "Ensuring all required Python packages are installed..."
 $PYTHON_EXE -m pip install -q -r requirements.txt
 
-# 3. Start Django backend server
+# 3. Run database migrations
+echo "Running database migrations..."
+$PYTHON_EXE manage.py migrate --run-syncdb
+
+# 4. Start Django backend server
 echo "Starting Django backend server..."
 $PYTHON_EXE manage.py runserver &
 BACKEND_PID=$!
 
-# 4. Start frontend server
-# We use the absolute path to PYTHON_EXE so we don't have to worry about the 'cd'
+# 5. Start frontend server
 echo "Starting frontend server on port 5500..."
 if [ -d "frontend" ]; then
     cd frontend
@@ -41,7 +54,7 @@ fi
 echo ""
 echo "========================================================="
 echo "✅ Both servers are now running!"
-echo "➡️  Frontend available at: http://localhost:5500/index.html"
+echo "➡️  Frontend available at: http://localhost:5500/login.html"
 echo "➡️  Backend available at:  http://127.0.0.1:8000/api/"
 echo "========================================================="
 echo "Press Ctrl+C to stop both servers."

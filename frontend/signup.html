@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account — TimeSync</title>
+    <meta name="description" content="Create a new TimeSync account to start managing overtime requests and payroll timesheets.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .input-field {
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .input-field:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.35);
+        }
+        .btn-primary:active { transform: translateY(0); }
+        .fade-in {
+            animation: fadeInUp 0.5s ease-out both;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .orb {
+            position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.15; pointer-events: none;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden">
+
+    <div class="orb w-96 h-96 bg-purple-500 -top-32 -right-32" style="position:absolute;"></div>
+    <div class="orb w-80 h-80 bg-indigo-600 bottom-0 left-0" style="position:absolute;"></div>
+
+    <div class="w-full max-w-md fade-in" style="animation-delay: 0.1s;">
+
+        <!-- Branding -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-purple-500/20 border border-purple-500/30 mb-4">
+                <svg class="w-7 h-7 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold text-white tracking-tight">Create your account</h1>
+            <p class="text-slate-400 text-sm mt-1">Join TimeSync and start tracking overtime</p>
+        </div>
+
+        <!-- Signup Card -->
+        <div class="glass-card rounded-2xl p-8">
+            <form id="signupForm" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="firstName" class="block text-sm font-medium text-slate-300 mb-1.5">First Name</label>
+                        <input id="firstName" type="text" required
+                            class="input-field w-full rounded-xl border border-white/10 bg-white/5 text-white placeholder-slate-500 px-4 py-3 text-sm outline-none"
+                            placeholder="John">
+                    </div>
+                    <div>
+                        <label for="lastName" class="block text-sm font-medium text-slate-300 mb-1.5">Last Name</label>
+                        <input id="lastName" type="text" required
+                            class="input-field w-full rounded-xl border border-white/10 bg-white/5 text-white placeholder-slate-500 px-4 py-3 text-sm outline-none"
+                            placeholder="Doe">
+                    </div>
+                </div>
+                <div>
+                    <label for="username" class="block text-sm font-medium text-slate-300 mb-1.5">Username</label>
+                    <input id="username" type="text" required autocomplete="username"
+                        class="input-field w-full rounded-xl border border-white/10 bg-white/5 text-white placeholder-slate-500 px-4 py-3 text-sm outline-none"
+                        placeholder="johndoe">
+                </div>
+                <div>
+                    <label for="email" class="block text-sm font-medium text-slate-300 mb-1.5">Email <span class="text-slate-500">(optional)</span></label>
+                    <input id="email" type="email" autocomplete="email"
+                        class="input-field w-full rounded-xl border border-white/10 bg-white/5 text-white placeholder-slate-500 px-4 py-3 text-sm outline-none"
+                        placeholder="john@example.com">
+                </div>
+                <div>
+                    <label for="role" class="block text-sm font-medium text-slate-300 mb-1.5">Role</label>
+                    <select id="role" required
+                        class="input-field w-full rounded-xl border border-white/10 bg-white/5 text-white px-4 py-3 text-sm outline-none appearance-none cursor-pointer"
+                        style="background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 fill=%22none%22 viewBox=%220 0 24 24%22 stroke=%22%2394a3b8%22 stroke-width=%222%22%3E%3Cpath stroke-linecap=%22round%22 stroke-linejoin=%22round%22 d=%22M19 9l-7 7-7-7%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 12px center; background-size: 18px;">
+                        <option value="" disabled selected class="bg-slate-800 text-slate-400">Select your role</option>
+                        <option value="EMPLOYEE" class="bg-slate-800">Employee</option>
+                        <option value="MANAGER" class="bg-slate-800">Line Manager</option>
+                        <option value="PAYROLL" class="bg-slate-800">Payroll Officer</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-slate-300 mb-1.5">Password</label>
+                    <input id="password" type="password" required autocomplete="new-password"
+                        class="input-field w-full rounded-xl border border-white/10 bg-white/5 text-white placeholder-slate-500 px-4 py-3 text-sm outline-none"
+                        placeholder="Min. 8 characters">
+                </div>
+                <div>
+                    <label for="password2" class="block text-sm font-medium text-slate-300 mb-1.5">Confirm Password</label>
+                    <input id="password2" type="password" required autocomplete="new-password"
+                        class="input-field w-full rounded-xl border border-white/10 bg-white/5 text-white placeholder-slate-500 px-4 py-3 text-sm outline-none"
+                        placeholder="Re-enter your password">
+                </div>
+                <button
+                    id="signupBtn"
+                    type="submit"
+                    class="btn-primary w-full text-white font-semibold py-3 rounded-xl text-sm flex items-center justify-center gap-2 mt-2"
+                >
+                    <span id="signupBtnText">Create Account</span>
+                    <svg id="signupSpinner" class="hidden animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                </button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <span class="text-slate-500 text-sm">Already have an account?</span>
+                <a href="login.html" class="text-indigo-400 hover:text-indigo-300 text-sm font-medium ml-1 transition-colors">Sign in</a>
+            </div>
+        </div>
+
+        <p class="text-center text-slate-600 text-xs mt-6">&copy; 2026 TimeSync. All rights reserved.</p>
+    </div>
+
+    <script src="js/toast.js?v=2"></script>
+    <script src="js/auth.js?v=2"></script>
+    <script src="js/services.js?v=2"></script>
+    <script>
+        (function () {
+            'use strict';
+
+            /* If already logged in, redirect */
+            if (window.auth.isAuthenticated()) {
+                var user = window.auth.getUser();
+                if (user && user.role) {
+                    window.location.href = window.auth.getDashboardPath(user.role);
+                    return;
+                }
+            }
+
+            var form = document.getElementById('signupForm');
+            var btnText = document.getElementById('signupBtnText');
+            var spinner = document.getElementById('signupSpinner');
+            var btn = document.getElementById('signupBtn');
+
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                var password = document.getElementById('password').value;
+                var password2 = document.getElementById('password2').value;
+
+                if (password !== password2) {
+                    showToast('Passwords do not match.', 'error');
+                    return;
+                }
+
+                if (password.length < 8) {
+                    showToast('Password must be at least 8 characters.', 'warning');
+                    return;
+                }
+
+                var payload = {
+                    first_name: document.getElementById('firstName').value.trim(),
+                    last_name: document.getElementById('lastName').value.trim(),
+                    username: document.getElementById('username').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    role: document.getElementById('role').value,
+                    password: password,
+                    password2: password2,
+                };
+
+                btn.disabled = true;
+                btnText.textContent = 'Creating account…';
+                spinner.classList.remove('hidden');
+
+                try {
+                    if (!window.api || typeof window.api.register !== 'function') {
+                        throw new Error('API module failed to load. Please refresh the page.');
+                    }
+
+                    var result = await window.api.register(payload);
+
+                    if (result.success) {
+                        showToast('Account created! Redirecting…', 'success');
+                        var role = result.data.user.role;
+                        setTimeout(function () {
+                            window.location.href = window.auth.getDashboardPath(role);
+                        }, 600);
+                        return; // Keep button in loading state during redirect
+                    } else {
+                        showToast(result.error || 'Registration failed.', 'error');
+                    }
+                } catch (err) {
+                    console.error('[TimeSync] Signup form error:', err);
+                    var msg = (err && err.message) ? err.message : 'An unexpected error occurred.';
+                    if (typeof showToast === 'function') {
+                        showToast(msg, 'error');
+                    } else {
+                        alert('Signup error: ' + msg);
+                    }
+                }
+
+                /* Reset button on failure */
+                btn.disabled = false;
+                btnText.textContent = 'Create Account';
+                spinner.classList.add('hidden');
+            });
+        })();
+    </script>
+</body>
+</html>
