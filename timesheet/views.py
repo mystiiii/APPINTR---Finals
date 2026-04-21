@@ -1,4 +1,4 @@
-from rest_framework import generics, status
+from rest_framework import generics, serializers, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -55,6 +55,13 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs):
         data = super().validate(attrs)
+
+        # Block superusers/staff from the frontend — they should use /admin/
+        if self.user.is_superuser or self.user.is_staff:
+            raise serializers.ValidationError(
+                'Admin accounts cannot log in here. Please use the admin panel.'
+            )
+
         data['user'] = UserSerializer(self.user).data
         return data
 
@@ -107,11 +114,19 @@ class OvertimeListView(generics.ListAPIView):
         if user.role == 'MANAGER':
             return OvertimeRequest.objects.filter(
                 status='PENDING'
+            ).exclude(
+                employee__is_superuser=True
+            ).exclude(
+                employee__is_staff=True
             ).order_by('-created_at')
 
         if user.role == 'PAYROLL':
             return OvertimeRequest.objects.filter(
                 status='APPROVED'
+            ).exclude(
+                employee__is_superuser=True
+            ).exclude(
+                employee__is_staff=True
             ).order_by('-created_at')
 
         return OvertimeRequest.objects.none()
